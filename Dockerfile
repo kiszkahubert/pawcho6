@@ -12,22 +12,15 @@ RUN echo '#!/bin/sh' > sk.sh && \
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
-RUN apk add nodejs npm curl openssh-client
+RUN apk add --no-cache nodejs npm curl openssh-client
+RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN --mount=type=ssh \
+    git clone git@github.com:kiszkahubert/pawcho6.git /tmp/repo &&\
+    cp /tmp/repo/main.js ./main.js && \
+    rm -rf /tmp/repo
+
 COPY --from=s /usr/app/sk.sh .
 RUN ./sk.sh > index.html
-COPY <<"EOF" main.js
-const http = require('http');
-const fs = require('fs');
-http.createServer((req,res)=>{
-    try{
-      res.writeHead(200, {'Content-Type':'text/html'});
-      res.end(fs.readFileSync('index.html'));
-      } catch(err){
-        res.writeHead(500);
-        res.end(err);
-      }
-}).listen(3000,'0.0.0.0');
-EOF
 COPY <<"EOF" /etc/nginx/conf.d/default.conf
 server{
   listen 80;
