@@ -12,7 +12,7 @@ RUN echo '#!/bin/sh' > sk.sh && \
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
-RUN apk add --no-cache nodejs npm curl openssh-client
+RUN apk add --no-cache nodejs npm curl openssh-client git
 RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 RUN --mount=type=ssh \
     git clone git@github.com:kiszkahubert/pawcho6.git /tmp/repo &&\
